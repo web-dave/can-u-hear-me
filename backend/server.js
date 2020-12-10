@@ -1,72 +1,55 @@
 const express = require("express");
-const http = require("http");
+const cors = require("cors");
 const app = express();
-const server = http.createServer(app);
-const io = require("socket.io")(server);
+const server = require("http").Server(app);
+const { v4: getUuid } = require("uuid");
+const WebSocket = require("ws");
 
-const users = {};
-const socketRoomMap = {};
+const wss = new WebSocket.Server({ port: 4201 });
 
-io.on("connection", (socket) => {
-  socket.on("join-room", (roomId, userDetails) => {
-    // adding all user to a room so that we can broadcast messages
-    socket.join(roomId);
+const clients = [];
 
-    // adding map users to room
-    if (users[roomId]) {
-      users[roomId].push({ socketId: socket.id, ...userDetails });
-    } else {
-      users[roomId] = [{ socketId: socket.id, ...userDetails }];
+wss.on("connection", (socket) => {
+  clients.push(socket);
+  clients.forEach((ws) => {
+    if (ws !== socket) {
+      ws.send(JSON.stringify({ msg: "New Connection: " + clients.length }));
     }
-
-    // adding map of socketid to room
-    socketRoomMap[socket.id] = roomId;
-    const usersInThisRoom = users[roomId].filter(
-      (user) => user.socketId !== socket.id
-    );
-
-    /* once a new user has joined sending the details of 
-    users who are already present in room. */
-    socket.emit("users-present-in-room", usersInThisRoom);
   });
-
-  socket.on("initiate-signal", (payload) => {
-    const roomId = socketRoomMap[socket.id];
-    let room = users[roomId];
-    let name = "";
-    if (room) {
-      const user = room.find((user) => user.socketId === socket.id);
-      name = user.name;
-    }
-
-    /* once a peer wants to initiate signal, 
-    To old user sending the user details along with signal */
-    io.to(payload.userToSignal).emit("user-joined", {
-      signal: payload.signal,
-      callerId: payload.callerId,
-      name,
+  console.log("New Connection", clients.length);
+  socket.on("close", () => {
+    clients.forEach((ws, i) => {
+      if (ws === socket) {
+        clients.splice(i, 1);
+      }
     });
+    console.log("disconnect", clients.length);
   });
-
-  /* once the peer acknowledge signal sending the 
-  acknowledgement back so that it can stream peer to peer. */
-  socket.on("ack-signal", (payload) => {
-    io.to(payload.callerId).emit("signal-accepted", {
-      signal: payload.signal,
-      id: socket.id,
-    });
-  });
-
-  socket.on("disconnect", () => {
-    const roomId = socketRoomMap[socket.id];
-    let room = users[roomId];
-    if (room) {
-      room = room.filter((user) => user.socketId !== socket.id);
-      users[roomId] = room;
+  socket.on("message", (m) => {
+    const msg = JSON.parse(m);
+    console.log("MESSAGE?", msg.joinroom);
+    if (msg.joinroom) {
+      const roomId = msg.joinroom;
+      clients.forEach((ws) => {
+        if (ws !== socket) {
+          ws.send(
+            JSON.stringify({ msg: "New Connection: " + clients.length, roomId })
+          );
+        }
+      });
     }
-    // on disconnect sending to all users that user has disconnected
-    socket.to(roomId).broadcast.emit("user-disconnected", socket.id);
   });
 });
 
-server.listen(3001);
+app.use(express.static("public"));
+app.use(cors());
+
+app.get("/", (req, res) => {
+  res.send({ roomId: getUuid() });
+});
+
+app.get("/:room", (req, res) => {
+  res.send(req.params.room);
+});
+
+server.listen(3000);
