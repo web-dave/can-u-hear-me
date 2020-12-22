@@ -1,0 +1,7 @@
+{
+  "compileOnSave": true,
+  "files": ["backend/main.ts"],
+  "compilerOptions": {
+    "target": "ES2015"
+  }
+}
