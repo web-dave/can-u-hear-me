@@ -8,7 +8,7 @@ const rooms: IRoomList = {};
 
 const wss = new WebSocket.Server({ port: 3002 });
 
-wss.on('connection', (client) => {
+wss.on('connection', (client: WebSocket) => {
   clients.push(client);
   const id = getID();
   const msg = {
