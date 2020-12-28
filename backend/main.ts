@@ -44,6 +44,14 @@ wss.on('connection', (client: WebSocket) => {
             clients: [],
             host: client,
           };
+          client.send(
+            JSON.stringify({
+              room: msg.message,
+              type: 'room-created',
+              message: 'Room created, you are host',
+              id: id,
+            })
+          );
         }
         rooms[msg.message].clients.push(client);
         const m: IMsg = {
@@ -54,13 +62,37 @@ wss.on('connection', (client: WebSocket) => {
           type: 'message',
         };
         rooms[msg.message].clients.forEach((c) => {
-          c.send(JSON.stringify(rooms));
+          c.send(
+            JSON.stringify({
+              ...msg,
+              room: msg.message,
+              time: new Date(),
+              message: rooms,
+              type: 'rooms',
+            })
+          );
         });
         rooms[msg.message].clients.forEach((c) => {
           c.send(JSON.stringify(m));
         });
         break;
       case 'message':
+        if (!msg.room) {
+          return;
+        }
+        if (rooms[msg.room]) {
+          rooms[msg.room].clients.forEach((c) => {
+            c.send(JSON.stringify(msg));
+          });
+        } else {
+          console.log('room', msg.room, 'not found');
+        }
+        break;
+      case 'call':
+      case 'user-media':
+      case 'offer':
+      case 'answer':
+      case 'candidate':
         if (!msg.room) {
           return;
         }

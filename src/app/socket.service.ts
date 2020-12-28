@@ -11,6 +11,8 @@ export class SocketService {
   id$ = new BehaviorSubject<string>('');
   message$ = new Subject<IMsg>();
   connection$ = new Subject<IMsg>();
+  call$ = new Subject<IMsg>();
+  host = false;
   constructor() {
     this.socket.subscribe((m) => this.handleEvents(m));
   }
@@ -29,6 +31,19 @@ export class SocketService {
         break;
       case 'message':
         this.message$.next(m);
+        break;
+      case 'room-created':
+        this.host = true;
+        break;
+      case 'call':
+      case 'user-media':
+      case 'offer':
+      case 'answer':
+      case 'candidate':
+        this.call$.next(m);
+        break;
+      default:
+        console.log('DEBUG', m);
         break;
     }
   }

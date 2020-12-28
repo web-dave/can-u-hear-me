@@ -1,5 +1,5 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { IMsg } from 'models/message';
+import { IMsg, msgType } from 'models/message';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 import { SocketService } from '../socket.service';
@@ -16,6 +16,7 @@ export class CallComponent implements OnInit, OnDestroy {
   localStream!: MediaStream;
   remoteStream!: MediaStream;
   id: string = '';
+  isStarted = false;
 
   end$ = new Subject();
 
@@ -113,12 +114,12 @@ export class CallComponent implements OnInit, OnDestroy {
   //   }
   // }
 
-  sendMessage(data: string) {
+  sendMessage(message: string, type: msgType = 'call') {
     const msg: IMsg = {
-      message: data,
+      message,
       room: this.room,
       id: this.id,
-      type: 'call',
+      type,
     };
     this.service.sendMessage(msg);
   }
