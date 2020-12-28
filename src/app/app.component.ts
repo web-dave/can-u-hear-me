@@ -9,6 +9,8 @@ import { ActivatedRoute } from '@angular/router';
 export class AppComponent implements OnInit {
   title = 'can-u-hear-me';
   roomId: string = '';
+  call = false;
+  chat = false;
   constructor(private route: ActivatedRoute) {}
   ngOnInit(): void {
     this.route.queryParams.subscribe((data) => (this.roomId = data.roomid));

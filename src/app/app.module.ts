@@ -5,9 +5,10 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { RoomComponent } from './room/room.component';
 import { ChatComponent } from './chat/chat.component';
+import { CallComponent } from './call/call.component';
 
 @NgModule({
-  declarations: [AppComponent, RoomComponent, ChatComponent],
+  declarations: [AppComponent, RoomComponent, ChatComponent, CallComponent],
   imports: [BrowserModule, AppRoutingModule],
   providers: [],
   bootstrap: [AppComponent],

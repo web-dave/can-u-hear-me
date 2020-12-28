@@ -94,7 +94,10 @@
     </svg>
   </div>
 
-  <app-chat [room]="roomId"></app-chat>
+  <button (click)="chat = !chat">💬</button>
+  <app-chat *ngIf="chat" [room]="roomId"></app-chat>
+  <button (click)="call = !call">📽️</button>
+  <app-call *ngIf="call" [room]="roomId"></app-call>
   <svg
     id="clouds"
     alt="Gray Clouds Background"
