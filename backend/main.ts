@@ -17,12 +17,7 @@ wss.on('connection', (client: WebSocket) => {
     id: id,
   };
   client.send(JSON.stringify(msg));
-  msg.message = 'New User';
-  clients.forEach((c) => {
-    if (c !== client) {
-      c.send(JSON.stringify(msg));
-    }
-  });
+
   client.on('close', () => {
     const roomList = Object.keys(rooms);
     clients.forEach((c, i) => {
