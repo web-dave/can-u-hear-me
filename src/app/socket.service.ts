@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { BehaviorSubject, Subject, ReplaySubject } from 'rxjs';
 import { WebSocketSubject } from 'rxjs/webSocket';
 import { IMsg } from '../../models/IMessage';
 
@@ -11,6 +11,7 @@ export class SocketService {
   id$ = new BehaviorSubject<string>('');
   message$ = new Subject<IMsg>();
   connection$ = new Subject<IMsg>();
+  room$ = new ReplaySubject<IMsg>();
   call$ = new Subject<IMsg>();
   host = false;
   constructor() {
@@ -22,6 +23,8 @@ export class SocketService {
   }
 
   handleEvents(m: IMsg) {
+    console.log(m.type, m);
+
     switch (m.type) {
       case 'connection':
         if (m.message === 'Welcome') {
@@ -38,8 +41,11 @@ export class SocketService {
       case 'call':
       case 'offer':
       case 'answer':
-      case 'room-joined':
         this.call$.next(m);
+        break;
+      case 'room-joined':
+      case 'welcome':
+        this.room$.next(m);
         break;
       default:
         console.log('DEBUG', m);

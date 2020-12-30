@@ -25,16 +25,6 @@ export class PeerComponent implements OnInit {
   constructor(private service: SocketService) {}
 
   ngOnInit(): void {
-    this.service.call$.subscribe((m) => {
-      switch (m.type) {
-        case 'offer':
-        case 'answer':
-          this.peer.signal(m.data);
-          break;
-        default:
-          console.log('->', m);
-      }
-    });
     this.service.id$
       .pipe(
         filter((data) => data !== ''),
@@ -54,11 +44,38 @@ export class PeerComponent implements OnInit {
       .subscribe((data) => {
         SimplePeer = data.default;
         this.initiator = this.service.host;
-        this.initPeer();
+        this.waitForRoomMates();
       });
   }
 
+  waitForRoomMates() {
+    this.service.room$.subscribe((m) => {
+      console.log(m.type);
+      switch (m.type) {
+        case 'room-joined':
+        case 'welcome':
+          this.initPeer();
+          break;
+        default:
+          console.log(m.type, m);
+      }
+    });
+  }
+  waitForRoomCalls() {
+    this.service.call$.subscribe((m) => {
+      switch (m.type) {
+        case 'offer':
+        case 'answer':
+          this.peer.signal(m.data);
+          break;
+        default:
+          console.log(m.type, m);
+      }
+    });
+  }
+  i = 0;
   initPeer() {
+    this.i++;
     this.peer = new SimplePeer({
       initiator: this.initiator,
       trickle: false,
@@ -66,7 +83,6 @@ export class PeerComponent implements OnInit {
     }) as ISimplePeer;
 
     this.peer.on('signal', (data) => {
-      console.log(data);
       if (data.type === 'offer') {
         this.offer = data;
       }
@@ -82,6 +98,9 @@ export class PeerComponent implements OnInit {
       console.log('Stream!!!!');
       this.peerStreams.push(stream);
     });
+    if (this.i === 1) {
+      this.waitForRoomCalls();
+    }
   }
 
   sendMessage(type: IMsgType, data: any, message = '') {

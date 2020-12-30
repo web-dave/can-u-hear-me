@@ -60,12 +60,20 @@ wss.on('connection', (client: WebSocket) => {
             JSON.stringify({
               room: msg.message,
               type: 'room-created',
-              message: 'Room created, you are host',
+              message: 'Room created, you are host!',
               id: id,
             })
           );
         }
         rooms[msg.message].clients.push(client);
+        client.send(
+          JSON.stringify({
+            room: msg.message,
+            type: 'welcome',
+            message: rooms[msg.message].clients.length,
+            id: id,
+          })
+        );
         const m: IMsg = {
           ...msg,
           room: msg.message,

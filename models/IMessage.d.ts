@@ -5,6 +5,7 @@ export type IMsgType =
   | 'call'
   | 'offer'
   | 'answer'
+  | 'welcome'
   | 'bye'
   | 'stream'
   | 'share'
