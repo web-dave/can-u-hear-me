@@ -1,4 +1,4 @@
-export type msgType =
+export type IMsgType =
   | 'connection'
   | 'message'
   | 'join-room'
@@ -21,7 +21,7 @@ export interface IMsgData {
 }
 
 export interface IMsg {
-  type: msgType;
+  type: IMsgType;
   message: string;
   data?: IMsgData;
   id: string;

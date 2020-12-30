@@ -1,4 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { IMsg, IMsgType } from 'models/IMessage';
 import { ISimplePeer } from 'models/simple-peer';
 import { from, Subject } from 'rxjs';
 import { delay, filter, mergeMap, takeUntil, tap } from 'rxjs/operators';
@@ -52,12 +53,12 @@ export class PeerComponent implements OnInit {
       .pipe(takeUntil(this.end$), delay(500))
       .subscribe((data) => {
         SimplePeer = data.default;
+        this.initiator = this.service.host;
         this.initPeer();
       });
   }
 
   initPeer() {
-    this.initiator = this.service.host;
     this.peer = new SimplePeer({
       initiator: this.initiator,
       trickle: false,
@@ -70,7 +71,7 @@ export class PeerComponent implements OnInit {
         this.offer = data;
       }
       if (data.type === 'answer') {
-        this.sendAnswer(data);
+        this.sendMessage('answer', data);
       }
     });
 
@@ -81,26 +82,18 @@ export class PeerComponent implements OnInit {
       console.log('Stream!!!!');
       this.peerStreams.push(stream);
     });
-
-    // console.log(JSON.stringify(this.peer));
   }
 
+  sendMessage(type: IMsgType, data: any, message = '') {
+    this.service.sendMessage({
+      id: this.id,
+      data,
+      room: this.room,
+      type,
+      message,
+    });
+  }
   sendOffer() {
-    this.service.sendMessage({
-      id: this.id,
-      data: this.offer,
-      room: this.room,
-      type: 'offer',
-      message: 'Hallllllloooooooooo',
-    });
-  }
-  sendAnswer(data: any) {
-    this.service.sendMessage({
-      id: this.id,
-      data: data,
-      room: this.room,
-      type: 'answer',
-      message: '',
-    });
+    this.sendMessage('offer', this.offer);
   }
 }

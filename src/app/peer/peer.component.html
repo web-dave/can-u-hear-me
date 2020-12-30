@@ -1,5 +1,4 @@
-<p>peer works!</p>
-<h2>Host: {{ initiator }}</h2>
+<h2>Welcome to your Call. <strong *ngIf="initiator">You are Host</strong></h2>
 <button [disabled]="!offer" (click)="sendOffer()">📹</button>
 <br />
 <br />

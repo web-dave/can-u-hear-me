@@ -1,5 +1,5 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { IMsg, msgType } from 'models/IMessage';
+import { IMsg, IMsgType } from 'models/IMessage';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 import { SocketService } from '../socket.service';
@@ -114,7 +114,7 @@ export class CallComponent implements OnInit, OnDestroy {
   //   }
   // }
 
-  sendMessage(message: string, type: msgType = 'call') {
+  sendMessage(message: string, type: IMsgType = 'call') {
     const msg: IMsg = {
       message,
       room: this.room,
