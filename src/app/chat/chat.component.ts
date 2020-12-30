@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil, filter } from 'rxjs/operators';
-import { IMsg } from '../../../models/message';
+import { IMsg } from '../../../models/IMessage';
 import { SocketService } from '../socket.service';
 
 @Component({

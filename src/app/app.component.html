@@ -93,11 +93,16 @@
       />
     </svg>
   </div>
+  <div class="chat">
+    <app-chat [room]="roomId"></app-chat>
+  </div>
+  <div class="call">
+    <app-peer [room]="roomId"></app-peer>
+  </div>
+  <!-- <button (click)="chat = !chat">💬</button> -->
+  <!--<button (click)="call = !call">📽️</button>
+  <app-call *ngIf="call" [room]="roomId"></app-call> -->
 
-  <button (click)="chat = !chat">💬</button>
-  <app-chat *ngIf="chat" [room]="roomId"></app-chat>
-  <button (click)="call = !call">📽️</button>
-  <app-call *ngIf="call" [room]="roomId"></app-call>
   <svg
     id="clouds"
     alt="Gray Clouds Background"

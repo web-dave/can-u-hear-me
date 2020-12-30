@@ -5,15 +5,25 @@ export type msgType =
   | 'call'
   | 'offer'
   | 'answer'
-  | 'candidate'
   | 'bye'
-  | 'user-media'
+  | 'stream'
+  | 'share'
   | 'room-created'
+  | 'room-joined'
   | 'debug';
+
+export interface IMsgData {
+  room: string;
+  name: string;
+  message: string;
+  label?: any;
+  candidate?: any;
+}
 
 export interface IMsg {
   type: msgType;
   message: string;
+  data?: IMsgData;
   id: string;
   time?: Date;
   room?: string;

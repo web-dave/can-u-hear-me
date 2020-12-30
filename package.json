@@ -34,6 +34,7 @@
     "@angular/compiler-cli": "~11.0.0",
     "@types/jasmine": "~3.6.0",
     "@types/node": "^12.11.1",
+    "@types/simple-peer": "6.1.4",
     "@types/ws": "5.1.0",
     "codelyzer": "^6.0.0",
     "jasmine-core": "~3.6.0",

@@ -1,0 +1,13 @@
+<p>peer works!</p>
+<h2>Host: {{ initiator }}</h2>
+<button [disabled]="!offer" (click)="sendOffer()">📹</button>
+<br />
+<br />
+<video width="200" [srcObject]="localStream" autoplay muted></video>
+<video
+  width="200"
+  *ngFor="let peerStream of peerStreams"
+  [srcObject]="peerStream"
+  autoplay
+  muted
+></video>

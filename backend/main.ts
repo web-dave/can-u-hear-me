@@ -1,4 +1,4 @@
-import { IMsg } from '../models/message';
+import { IMsg } from '../models/IMessage';
 import * as WebSocket from 'ws';
 import { IRoomList } from '../models/IRoomList';
 const { v4: getID } = require('uuid');
@@ -11,6 +11,7 @@ const wss = new WebSocket.Server({ port: 3002 });
 wss.on('connection', (client: WebSocket) => {
   clients.push(client);
   const id = getID();
+  client.send(JSON.stringify(client));
   const msg = {
     type: 'connection',
     message: 'Welcome',
@@ -28,9 +29,20 @@ wss.on('connection', (client: WebSocket) => {
     roomList.forEach((r) => {
       rooms[r].clients.forEach((c, i) => {
         if (c === client) {
+          if (client === rooms[r].host) {
+            rooms[r].host = null;
+          }
           rooms[r].clients.splice(i, 1);
         }
       });
+    });
+    roomList.forEach((r) => {
+      if (rooms[r].clients.length === 0) {
+        delete rooms[r];
+      }
+      if (rooms[r]?.host === null) {
+        delete rooms[r];
+      }
     });
   });
   client.on('message', (m: string) => {
@@ -72,9 +84,16 @@ wss.on('connection', (client: WebSocket) => {
             })
           );
         });
-        rooms[msg.message].clients.forEach((c) => {
-          c.send(JSON.stringify(m));
-        });
+        if (rooms[msg.message]) {
+          const c = rooms[msg.message].host;
+          c?.send(
+            JSON.stringify({
+              room: msg.message,
+              message: 'new User in Room!',
+              type: 'room-joined',
+            })
+          );
+        }
         break;
       case 'message':
         if (!msg.room) {
@@ -88,17 +107,17 @@ wss.on('connection', (client: WebSocket) => {
           console.log('room', msg.room, 'not found');
         }
         break;
-      case 'call':
-      case 'user-media':
-      case 'offer':
       case 'answer':
-      case 'candidate':
+      case 'offer':
+        console.log(msg.type, 'HIHO!!');
         if (!msg.room) {
           return;
         }
         if (rooms[msg.room]) {
           rooms[msg.room].clients.forEach((c) => {
-            c.send(JSON.stringify(msg));
+            if (c !== client) {
+              c.send(JSON.stringify(msg));
+            }
           });
         } else {
           console.log('room', msg.room, 'not found');

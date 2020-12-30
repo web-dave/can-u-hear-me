@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { WebSocketSubject } from 'rxjs/webSocket';
-import { IMsg } from '../../models/message';
+import { IMsg } from '../../models/IMessage';
 
 @Injectable({
   providedIn: 'root',
@@ -36,10 +36,9 @@ export class SocketService {
         this.host = true;
         break;
       case 'call':
-      case 'user-media':
       case 'offer':
       case 'answer':
-      case 'candidate':
+      case 'room-joined':
         this.call$.next(m);
         break;
       default:
