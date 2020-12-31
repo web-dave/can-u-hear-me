@@ -1,9 +1,10 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { IMsg, IMsgType } from 'models/IMessage';
-import { Subject } from 'rxjs';
-import { filter, takeUntil } from 'rxjs/operators';
+import { IPeerJs } from 'models/peerjs';
+import { from, Subject } from 'rxjs';
+import { delay, filter, mergeMap, takeUntil, tap } from 'rxjs/operators';
 import { SocketService } from '../socket.service';
-
+// const Peer:
 @Component({
   selector: 'app-call',
   templateUrl: './call.component.html',
@@ -11,12 +12,14 @@ import { SocketService } from '../socket.service';
 })
 export class CallComponent implements OnInit, OnDestroy {
   @Input() room: string = '';
-  callActive: boolean = false;
-  pc: any;
   localStream!: MediaStream;
-  remoteStream!: MediaStream;
+  remoteStreams: MediaStream[] = [];
   id: string = '';
-  isStarted = false;
+  initiator = false;
+  myPeer!: IPeerJs;
+  peers: {
+    [id: string]: any;
+  } = {};
 
   end$ = new Subject();
 
@@ -25,95 +28,62 @@ export class CallComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.service.id$
       .pipe(
-        takeUntil(this.end$),
-        filter((data) => data !== '')
+        filter((data) => data !== ''),
+        tap((id) => (this.id = id)),
+        mergeMap(() =>
+          from(
+            navigator.mediaDevices.getUserMedia({ audio: false, video: true })
+          )
+        ),
+        tap((stream) => (this.localStream = stream)),
+        mergeMap(() =>
+          // @ts-ignore
+          from(import('./../../assets/peerjs.js'))
+        )
       )
-      .subscribe((data) => this.setupWebRtc(data));
-  }
-
-  setupWebRtc(data: string) {
-    this.id = data;
-    try {
-      this.pc = new RTCPeerConnection({
-        iceServers: [
-          { urls: 'stun:stun.services.mozilla.com' },
-          { urls: 'stun:stun.l.google.com:19302' },
-        ],
-      });
-    } catch (error) {
-      console.log(error);
-      this.pc = new RTCPeerConnection({
-        iceServers: [
-          { urls: 'stun:stun.services.mozilla.com' },
-          { urls: 'stun:stun.l.google.com:19302' },
-        ],
-      });
-    } finally {
-      console.log('PC', this.pc);
-
-      this.pc.onicecandidate = (event: any) => {
-        console.log(event);
-
-        event.candidate
-          ? this.sendMessage(JSON.stringify({ ice: event.candidate }))
-          : console.log('Sent All Ice');
-      };
-
-      this.pc.onremovestream = (event: RTCPeerConnection) => {
-        console.log('Stream Ended');
-      };
-
-      this.pc.ontrack = (event: { streams: MediaStream[] }) =>
-        (this.remoteStream = event.streams[0]);
-
-      this.pc.onaddstream = (event: any) => {
-        console.log('Remote stream added.', event);
-        this.remoteStream = event.stream;
-      };
-
-      this.showMe();
-    }
-  }
-
-  showMe() {
-    navigator.mediaDevices
-      .getUserMedia({ audio: true, video: true })
-      .then((stream) => {
-        this.localStream = stream;
-        this.pc.addStream(stream);
+      .pipe(takeUntil(this.end$), delay(500))
+      .subscribe((data) => {
+        this.initiator = this.service.host;
+        this.myPeer = new data.default(this.id) as IPeerJs;
+        this.myPeer.on('open', (id) => {
+          console.log(id);
+          this.sendMessage('', 'room-joined');
+        });
+        this.myPeer.on('call', (call) => {
+          call.answer(this.localStream);
+          console.log(call);
+          call.on('stream', (stream: MediaStream) => {
+            this.remoteStreams.push(stream);
+          });
+        });
+        this.service.member$.subscribe((data) => {
+          console.log(data.type);
+          switch (data.type) {
+            case 'user-connected':
+              this.connectToNewUser(data.id, this.localStream);
+              break;
+            case 'user-disconnected':
+              this.peers[data.id].close();
+              break;
+          }
+        });
       });
   }
+  connectToNewUser(userId: string, stream: MediaStream) {
+    const call = this.myPeer.call(userId, stream);
+    // console.log(call);
+    call.on('stream', (stream: MediaStream) => {
+      this.remoteStreams.push(stream);
+    });
+    call.on('close', () => {
+      this.peers[call.peer].close();
+    });
 
-  // readMessage(data: any) {
-  //   if (!data) return;
-  //   try {
-  //     var msg = JSON.parse(data.val().message);
-  //     let personalData = data.val().personalData;
-  //     var sender = data.val().sender;
-  //     if (sender != this.id) {
-  //       if (msg.ice != undefined && this.pc != null) {
-  //         this.pc.addIceCandidate(new RTCIceCandidate(msg.ice));
-  //       } else if (msg.sdp.type == 'offer') {
-  //         this.callActive = true;
-  //         this.pc
-  //           .setRemoteDescription(new RTCSessionDescription(msg.sdp))
-  //           .then(() => this.pc.createAnswer())
-  //           .then((answer: any) => this.pc.setLocalDescription(answer))
-  //           .then(() =>
-  //             this.sendMessage(
-  //               JSON.stringify({ sdp: this.pc.localDescription })
-  //             )
-  //           );
-  //       } else if (msg.sdp.type == 'answer') {
-  //         this.callActive = true;
-  //         this.pc.setRemoteDescription(new RTCSessionDescription(msg.sdp));
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // }
+    this.peers[userId] = call;
+    console.log(this.peers);
+  }
 
+  addRemoteStream() {}
   sendMessage(message: string, type: IMsgType = 'call') {
     const msg: IMsg = {
       message,

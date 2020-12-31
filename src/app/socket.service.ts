@@ -10,9 +10,9 @@ export class SocketService {
   private socket = new WebSocketSubject<IMsg>('ws://localhost:3002');
   id$ = new BehaviorSubject<string>('');
   message$ = new Subject<IMsg>();
-  connection$ = new Subject<IMsg>();
   room$ = new ReplaySubject<IMsg>();
   call$ = new Subject<IMsg>();
+  member$ = new ReplaySubject<IMsg>();
   host = false;
   constructor() {
     this.socket.subscribe((m) => this.handleEvents(m));
@@ -24,11 +24,12 @@ export class SocketService {
 
   handleEvents(m: IMsg) {
     switch (m.type) {
+      case 'user-connected':
+      case 'user-disconnected':
+        this.member$.next(m);
+        break;
       case 'connection':
-        if (m.message === 'Welcome') {
-          this.id$.next(m.id);
-        }
-        this.connection$.next(m);
+        this.id$.next(m.id);
         break;
       case 'message':
         this.message$.next(m);

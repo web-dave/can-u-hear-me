@@ -1,3 +1,9 @@
 <p>call works!</p>
-<video id="device" [srcObject]="remoteStream" controls autoplay></video>
-<video id="me" [srcObject]="localStream" controls autoplay></video>
+<video id="me" [srcObject]="localStream" autoplay muted></video>
+<video
+  id="device"
+  *ngFor="let stream of remoteStreams"
+  [srcObject]="stream"
+  autoplay
+  muted
+></video>

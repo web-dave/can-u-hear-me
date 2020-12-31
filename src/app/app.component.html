@@ -93,11 +93,12 @@
       />
     </svg>
   </div>
-  <div class="chat">
+  <h3>{{ id }}</h3>
+  <!-- <div class="chat">
     <app-chat [room]="roomId"></app-chat>
-  </div>
+  </div> -->
   <div class="call">
-    <app-peer [room]="roomId"></app-peer>
+    <app-call [room]="roomId"></app-call>
   </div>
   <!-- <button (click)="chat = !chat">💬</button> -->
   <!--<button (click)="call = !call">📽️</button>

@@ -15,11 +15,7 @@ export class RoomComponent implements OnInit, OnDestroy {
   socketRef$!: WebSocketSubject<unknown>;
   roomId: string = '';
   end$ = new Subject();
-  constructor(private http: HttpClient) {
-    import('./../../assets/simplepeer.min.js' as any).then((m) =>
-      console.log(m)
-    );
-  }
+  constructor(private http: HttpClient) {}
 
   ngOnDestroy() {
     this.end$.next(0);

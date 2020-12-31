@@ -1,4 +1,6 @@
 export type IMsgType =
+  | 'user-connected'
+  | 'user-disconnected'
   | 'connection'
   | 'message'
   | 'join-room'
