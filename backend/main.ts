@@ -60,20 +60,22 @@ wss.on('connection', (client: WebSocket) => {
             JSON.stringify({
               room: msg.message,
               type: 'room-created',
-              message: 'Room created, you are host!',
+              message: 'Room created, you are host!!',
               id: id,
             })
           );
         }
         rooms[msg.message].clients.push(client);
-        client.send(
-          JSON.stringify({
-            room: msg.message,
-            type: 'welcome',
-            message: rooms[msg.message].clients.length,
-            id: id,
-          })
-        );
+        if (rooms[msg.message].host !== client) {
+          client.send(
+            JSON.stringify({
+              room: msg.message,
+              type: 'welcome',
+              message: rooms[msg.message].clients.length,
+              id: id,
+            })
+          );
+        }
         const m: IMsg = {
           ...msg,
           room: msg.message,
@@ -94,13 +96,15 @@ wss.on('connection', (client: WebSocket) => {
         });
         if (rooms[msg.message]) {
           const c = rooms[msg.message].host;
-          c?.send(
-            JSON.stringify({
-              room: msg.message,
-              message: 'new User in Room!',
-              type: 'room-joined',
-            })
-          );
+          if (c !== client) {
+            c?.send(
+              JSON.stringify({
+                room: msg.message,
+                message: 'new User in Room!',
+                type: 'room-joined',
+              })
+            );
+          }
         }
         break;
       case 'message':

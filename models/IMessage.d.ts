@@ -15,10 +15,8 @@ export type IMsgType =
 
 export interface IMsgData {
   room: string;
-  name: string;
+  id: string;
   message: string;
-  label?: any;
-  candidate?: any;
 }
 
 export interface IMsg {

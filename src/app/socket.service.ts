@@ -23,8 +23,6 @@ export class SocketService {
   }
 
   handleEvents(m: IMsg) {
-    console.log(m.type, m);
-
     switch (m.type) {
       case 'connection':
         if (m.message === 'Welcome') {
