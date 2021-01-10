@@ -4,9 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "server_": "nodemon backend/main.js",
-    "server": "nodemon backend/server.js",
-    "build": "tsc -w --project tsconfig.backend.json"
+    "build": "ng build --prod"
   },
   "private": true,
   "dependencies": {
@@ -18,14 +16,7 @@
     "@angular/platform-browser": "~11.0.0",
     "@angular/platform-browser-dynamic": "~11.0.0",
     "@angular/router": "~11.0.0",
-    "chance": "^1.1.7",
-    "cors": "^2.8.5",
-    "express": "^4.17.1",
     "rxjs": "~6.6.0",
-    "simple-peer": "^9.9.3",
-    "tslib": "^2.0.0",
-    "uuid": "^8.3.2",
-    "ws": "^7.4.1",
     "zone.js": "~0.10.2"
   },
   "devDependencies": {
@@ -34,8 +25,6 @@
     "@angular/compiler-cli": "~11.0.0",
     "@types/jasmine": "~3.6.0",
     "@types/node": "^12.11.1",
-    "@types/simple-peer": "6.1.4",
-    "@types/ws": "5.1.0",
     "codelyzer": "^6.0.0",
     "jasmine-core": "~3.6.0",
     "jasmine-spec-reporter": "~5.0.0",
@@ -44,7 +33,6 @@
     "karma-coverage": "~2.0.3",
     "karma-jasmine": "~4.0.0",
     "karma-jasmine-html-reporter": "^1.5.0",
-    "nodemon": "^2.0.6",
     "protractor": "~7.0.0",
     "ts-node": "~8.3.0",
     "tslint": "~6.1.0",
