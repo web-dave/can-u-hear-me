@@ -2,10 +2,8 @@
   "name": "can-u-hear-me",
   "version": "0.0.0",
   "scripts": {
-    "start": "node server",
-    "serve": "ng serve",
-    "build": "ng build --prod",
-    "post-build": "cp backend/index.js dist/can-u-hear-me/ && cp backend/package.json dist/can-u-hear-me/"
+    "start": "ng serve",
+    "build": "ng build --prod"
   },
   "private": true,
   "dependencies": {
