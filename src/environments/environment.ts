@@ -4,8 +4,7 @@
 
 export const environment = {
   production: false,
-  url: 'ws://mysterious-beach-33515.herokuapp.com:2233',
-  // url: 'ws://localhost:2233',
+  url: 'ws://localhost:2233',
 };
 
 /*
