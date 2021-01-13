@@ -1,0 +1,19 @@
+{
+  "name": "can-u-hear-me",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/web-dave/can-u-hear-me.git"
+  },
+  "dependencies": {
+    "uuid": "8.3.1",
+    "ws": "7.3.1",
+    "express": "4.17.1"
+  },
+  "engines": {
+    "node": "12.17.x"
+  },
+  "scripts": {
+    "start": "node index.js"
+  }
+}
