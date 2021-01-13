@@ -4,6 +4,7 @@ import { IPeerJs } from 'models/peerJS.js';
 import { from, Subject } from 'rxjs';
 import { mergeMap, takeUntil, tap } from 'rxjs/operators';
 import { WebSocketSubject } from 'rxjs/webSocket';
+import { environment } from 'src/environments/environment.js';
 
 @Component({
   selector: 'app-root',
@@ -14,7 +15,7 @@ export class AppComponent implements OnInit, OnDestroy {
   msg: string = '';
   messages: IMsg[] = [];
   end$ = new Subject();
-  socket = new WebSocketSubject<IMsg>('ws://localhost:3002');
+  socket = new WebSocketSubject<IMsg>(environment.url);
   _room = '';
   room = '';
   _name: string = '';
