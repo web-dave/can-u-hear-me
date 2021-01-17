@@ -1,0 +1,30 @@
+<div class="placeholder">
+  <div class="form__group field" *ngIf="name === ''">
+    <input
+      type="input"
+      class="form__field"
+      placeholder="Whats your name?"
+      name="name"
+      id="name"
+      required
+      [value]="_name"
+      (input)="_name = $event.target.value"
+    />
+    <label for="name" class="form__label">Whats your name?</label>
+    <button [disabled]="_name === ''" (click)="setName(_name)">🐱‍💻</button>
+  </div>
+  <div class="form__group field" *ngIf="name !== ''">
+    <input
+      type="input"
+      class="form__field"
+      placeholder="Whats your name?"
+      name="room"
+      id="room"
+      required
+      [value]="_room"
+      (input)="_room = $event.target.value"
+    />
+    <label for="room" class="form__label">Enter Room Name</label>
+    <button [disabled]="_room === ''" (click)="setRoom(_room)">👨‍👩‍👧‍👦</button>
+  </div>
+</div>

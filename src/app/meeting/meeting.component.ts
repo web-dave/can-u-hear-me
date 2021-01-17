@@ -58,7 +58,7 @@ export class MeetingComponent implements OnInit, OnChanges {
     this.service.sendMessage(this.service.id, this.service.room, 'available');
   }
 
-  stopCall(call: ICall, stream: MediaStream, i) {
+  stopCall(call: ICall, stream: MediaStream, i: number) {
     call.close();
     this.remoteStreams.splice(i, 1);
   }

@@ -25,21 +25,19 @@ export class AppComponent implements OnInit {
     if (value) {
       this.name = value;
       this.service.name = this.name;
-      if (location.pathname !== '/') {
-        this.setRoom(location.pathname.substring(1));
-      }
       this.sendMessage(this.name, 'connection');
     }
   }
 
-  sendMessage(message: string, type: IMsgType = 'message') {
-    this.service.sendMessage(message, this.room, type);
-  }
   setRoom(value: string) {
     if (value) {
       this.room = value;
       this.service.room = this.room;
       this.sendMessage(this.room, 'join');
     }
+  }
+
+  sendMessage(message: string, type: IMsgType = 'message') {
+    this.service.sendMessage(message, this.room, type);
   }
 }
