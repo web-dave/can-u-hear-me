@@ -7,23 +7,11 @@
     <div class="header__avatar">🦄</div>
   </header>
   <aside class="sidenav">
-    <div class="card-container" *ngFor="let m of messages">
-      <div class="card card-big" [ngClass]="{ me: m.id === name }">
-        <span>{{ m.message }}</span
-        ><br />
-        <small>{{ m.id }}</small>
-      </div>
-    </div>
-    <div class="input" *ngIf="room !== ''">
-      <textarea
-        type="text"
-        rows="3"
-        cols="15"
-        [value]="msg"
-        (input)="msg = $event.target.value"
-      ></textarea>
-      <button (click)="sendMessage(msg)">📧</button>
-    </div>
+    <app-chat
+      *ngIf="room !== ''"
+      [msg]="msg$ | async"
+      (send)="sendMessage($event, 'message')"
+    ></app-chat>
   </aside>
   <main class="main">
     <div class="placeholder" *ngIf="room === ''">
@@ -57,39 +45,7 @@
       </div>
     </div>
 
-    <div class="video-grid">
-      <label
-        *ngIf="remoteStreams.length === 0 && room !== ''"
-        (click)="startCall()"
-      >
-        📞
-      </label>
-      <div class="video-card" *ngIf="localStream">
-        <video
-          id="me"
-          height="190"
-          width="257"
-          [srcObject]="localStream"
-          autoplay
-          muted
-        ></video>
-        <div class="user-name">{{ name }}</div>
-      </div>
-      <div
-        class="video-card"
-        *ngFor="let stream of remoteStreams; let i = index"
-      >
-        <video
-          id="me"
-          height="190"
-          width="257"
-          [srcObject]="stream"
-          autoplay
-          muted
-        ></video>
-        <div class="user-name">{{ remoteNames[i] }}</div>
-      </div>
-    </div>
+    <app-meeting *ngIf="room !== ''" [events]="meeting$ | async"></app-meeting>
   </main>
   <footer class="footer">
     <div class="footer__copyright">&copy; 2021 webdave_de</div>

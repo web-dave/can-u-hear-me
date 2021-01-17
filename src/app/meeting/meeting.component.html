@@ -1,0 +1,28 @@
+<div class="video-grid">
+  <label *ngIf="remoteStreams.length === 0" (click)="startCall()"> 📞 </label>
+  <div class="video-card" *ngIf="localStream">
+    <video
+      id="me"
+      height="190"
+      width="257"
+      [srcObject]="localStream"
+      autoplay
+      muted
+    ></video>
+    <div class="user-name">{{ name }}</div>
+  </div>
+  <div class="video-card" *ngFor="let peer of remoteStreams">
+    <video
+      id="me"
+      height="190"
+      width="257"
+      [srcObject]="peer.stream"
+      autoplay
+      muted
+    ></video>
+    <div class="user-name">{{ peer.call.username }}</div>
+
+    <!-- <div class="user-name">{{ peers[peer.call.peer] }}</div> -->
+  </div>
+</div>
+<pre>{{ peers | json }}</pre>

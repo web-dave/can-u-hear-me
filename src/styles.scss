@@ -184,8 +184,11 @@ body {
     }
     .user-name {
       position: relative;
-      top: -25px;
-      left: 10px;
+      top: -19px;
+      left: -5px;
+      color: $green;
+      background-color: $secondary;
+      padding: 0 15px;
     }
   }
 }

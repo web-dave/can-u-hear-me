@@ -1,3 +1,5 @@
+import { IEvent } from './IEvent';
+
 export interface IPeerJs {
   connections: any;
   destroyed: boolean;
@@ -16,16 +18,7 @@ export interface IPeerJs {
   };
   socket: WebSocket;
   on(
-    event:
-      | 'signal'
-      | 'stream'
-      | 'connect'
-      | 'open'
-      | 'call'
-      | 'data'
-      | 'track'
-      | 'close'
-      | 'error',
+    event: IEvent,
     fn: {
       (param1?: any, param2?: any): void;
     }

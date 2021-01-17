@@ -1,0 +1,17 @@
+<div class="card-container" *ngFor="let m of messages">
+  <div class="card card-big" [ngClass]="{ me: m.id === name }">
+    <span>{{ m.message }}</span
+    ><br />
+    <small>{{ m.id }}</small>
+  </div>
+</div>
+<div class="input">
+  <textarea
+    type="text"
+    rows="3"
+    cols="15"
+    [value]="text"
+    (input)="text = $event.target.value"
+  ></textarea>
+  <button (click)="sendMessage(text)">📧</button>
+</div>
