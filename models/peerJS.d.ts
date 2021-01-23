@@ -24,4 +24,6 @@ export interface IPeerJs {
     }
   ): void;
   call(id: string, stream: MediaStream, options?: any): any;
+  destroy(): void;
+  disconnect(): void;
 }

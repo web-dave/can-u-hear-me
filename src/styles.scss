@@ -156,20 +156,6 @@ body {
       }
     }
 
-    button {
-      font-size: 300px;
-      display: table-cell;
-      vertical-align: middle;
-      line-height: normal;
-      background-color: transparent;
-      border: none;
-      outline: none;
-      &:active {
-        text-shadow: 5px 5px $gray;
-        transform: translateY(-2px);
-        transform: translateX(-4px);
-      }
-    }
     // position: relative;
   }
 
@@ -190,6 +176,20 @@ body {
       background-color: $secondary;
       padding: 0 15px;
     }
+  }
+}
+button {
+  font-size: 1.3rem;
+  display: table-cell;
+  vertical-align: middle;
+  line-height: normal;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  &:active {
+    text-shadow: 5px 5px $gray;
+    transform: translateY(-2px);
+    transform: translateX(-4px);
   }
 }
 

@@ -2,10 +2,11 @@ import {
   Component,
   Input,
   OnChanges,
+  OnDestroy,
   OnInit,
   SimpleChanges,
 } from '@angular/core';
-import { ICall } from 'models/ICall.js';
+import { ICall, IPeerIterable } from 'models/ICall.js';
 import { IMsg } from 'models/IMessage.js';
 import { IPeerJs } from 'models/peerJS.js';
 import { from } from 'rxjs';
@@ -15,15 +16,14 @@ import { SocketService } from '../socket.service.js';
   selector: 'app-meeting',
   templateUrl: './meeting.component.html',
 })
-export class MeetingComponent implements OnInit, OnChanges {
+export class MeetingComponent implements OnInit, OnChanges, OnDestroy {
   @Input() events!: IMsg;
   localStream!: MediaStream;
-  remoteStreams: {
-    stream: MediaStream;
-    call: ICall;
-  }[] = [];
+  peers = new Map<string, IPeerIterable>();
+  // remoteStreams = this.peers.values();
   myPeer!: IPeerJs;
   name!: string;
+  audioEnabled = false;
 
   constructor(private service: SocketService) {}
 
@@ -43,30 +43,42 @@ export class MeetingComponent implements OnInit, OnChanges {
             this.connectToNewUser(call);
             break;
           case 'leave':
-            this.remoteStreams.forEach((rs, i) => {
-              if (rs.call.peer === m.id) {
-                this.stopCall(rs.call, rs.stream, i);
-              }
-            });
+            this.stopCall(m.id);
             break;
         }
       }
     }
+  }
+  ngOnDestroy() {
+    this.myPeer.destroy();
   }
 
   startCall() {
     this.service.sendMessage(this.service.id, this.service.room, 'available');
   }
 
-  stopCall(call: ICall, stream: MediaStream, i: number) {
-    call.close();
-    this.remoteStreams.splice(i, 1);
+  stopCall(id: string) {
+    this.peers.get(id)?.call.close();
+    this.peers.delete(id);
+  }
+
+  muteMyself() {
+    this.audioEnabled = !this.audioEnabled;
+    this.localStream.getAudioTracks()[0].enabled = this.audioEnabled;
+  }
+
+  videoStartStop() {
+    this.localStream.getVideoTracks()[0].enabled = !this.localStream.getVideoTracks()[0]
+      .enabled;
   }
 
   initVideo() {
-    from(navigator.mediaDevices.getUserMedia({ audio: false, video: true }))
+    from(navigator.mediaDevices.getUserMedia({ audio: true, video: true }))
       .pipe(
-        tap((stream) => (this.localStream = stream)),
+        tap((stream) => {
+          this.localStream = stream;
+          this.localStream.getAudioTracks()[0].enabled = this.audioEnabled;
+        }),
         // @ts-ignore
         mergeMap(() => from(import('./../../assets/peer.js')))
       )
@@ -78,21 +90,30 @@ export class MeetingComponent implements OnInit, OnChanges {
         });
         this.myPeer.on('call', (call: ICall) => {
           call.answer(this.localStream);
+          console.log('call', call);
           this.connectToNewUser(call);
         });
       });
   }
 
   connectToNewUser(call: ICall) {
+    console.log('connectToNewUser');
+
     call.on('stream', (stream: MediaStream) => {
       call.username = this.service.getAttendeeName(call.peer);
-      this.remoteStreams.push({
-        stream,
+      const peerObj: IPeerIterable = {
+        name: call.username,
         call,
-      });
+        stream,
+      };
+      console.log('connectToNewUser', peerObj);
+      if (!this.peers.has(call.peer)) {
+        this.peers.set(call.peer, peerObj);
+        console.log('connectToNewUser', this.peers);
+      }
     });
     call.on('close', () => {
-      call.close();
+      this.stopCall(call.peer);
     });
   }
 }

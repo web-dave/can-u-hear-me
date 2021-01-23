@@ -1,7 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { IMsg, IMsgType } from 'models/IMessage';
 import { Subject } from 'rxjs';
-import { filter, takeUntil } from 'rxjs/operators';
+import { filter, takeUntil, tap } from 'rxjs/operators';
 import { WebSocketSubject } from 'rxjs/webSocket';
 import { environment } from 'src/environments/environment';
 
@@ -10,6 +10,8 @@ import { environment } from 'src/environments/environment';
 })
 export class SocketService implements OnDestroy {
   private socket$$ = new WebSocketSubject<IMsg>(environment.url);
+  private chatSocket$$ = new Subject<IMsg>();
+  private meetingSocket$$ = new Subject<IMsg>();
   private end$ = new Subject();
 
   name = '';
@@ -17,28 +19,35 @@ export class SocketService implements OnDestroy {
   id = '';
   attendees = new Map<string, string>();
 
-  chatSocket$ = this.socket$$.pipe(
-    takeUntil(this.end$),
-    filter((m) => m.type === 'message')
-  );
-  meetingSocket$ = this.socket$$.pipe(
-    takeUntil(this.end$),
-    filter((m) => m.type === 'available' || m.type === 'leave')
-  );
+  chatSocket$ = this.chatSocket$$.pipe(takeUntil(this.end$));
+  meetingSocket$ = this.meetingSocket$$.pipe(takeUntil(this.end$));
 
   constructor() {
     this.socket$$
       .pipe(
         takeUntil(this.end$),
+        tap((m) => {
+          if (m.type === 'message') {
+            this.chatSocket$$.next(m);
+          }
+        }),
+        tap((m) => {
+          if (m.type === 'available' || m.type === 'leave') {
+            this.meetingSocket$$.next(m);
+          }
+        }),
         filter((m) => m.type === 'connection' || m.type === 'list')
       )
       .subscribe(
         (m) => {
           this.id = m.id;
           if (m.type === 'list') {
+            console.log(m.message);
+            this.attendees.clear();
             m.message.forEach((u: { id: string; name: string }) =>
               this.attendees.set(u.id, u.name)
             );
+            console.log(this.attendees);
           }
         },
         (err) => {

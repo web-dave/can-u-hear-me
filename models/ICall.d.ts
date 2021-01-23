@@ -1,5 +1,10 @@
 import { IEvent } from './IEvent';
 
+export interface IPeerIterable {
+  name: string;
+  stream: MediaStream;
+  call: ICall;
+}
 export interface ICall {
   events: any;
   eventsCount: number;
